@@ -1,11 +1,21 @@
+/*
+ * Arduino GPS shield v1.1
+ * Shield: http://imall.iteadstudio.com/im120417017.html
+ * Arduino: UNO
+ * 
+ * Receives GPS data from SoftSerial
+ * Sends data throw USB from Serial 
+ */
 #include <SD.h>
-const int chipSelect = 10;
+#include <SoftwareSerial.h>
+
+const int CHIP_SELECT = 10;
 void setup()
 {
   Serial.begin(9600);
   
-  pinMode(10, OUTPUT);
-  if (!SD.begin(chipSelect)) {
+  pinMode(CHIP_SELECT, OUTPUT);
+  if (!SD.begin(CHIP_SELECT)) {
    
     return;
   }
