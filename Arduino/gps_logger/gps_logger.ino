@@ -29,7 +29,7 @@ const byte CHIP_SELECT = 10;
 const char LOG_FILE[] = "datalog.txt";
 
 // Soft Serial Constructor
-SoftwareSerial softSerial (RX_PIN, TX_PIN, 1);
+SoftwareSerial softSerial (RX_PIN, TX_PIN);
 
 void setup()
 {
@@ -38,7 +38,7 @@ void setup()
   while (!Serial) {}
   Serial.println("Conected to Arduino UNO.\nStarting system ...");
   // Open Soft Serial
-  softSerial.begin(9600);
+  softSerial.begin(38400);
   // Open SD 
   /*
   pinMode(CHIP_SELECT, OUTPUT);
@@ -53,7 +53,7 @@ void loop()
 {
   String data = readGPS( );
   //saveToSd(data);
-  Serial.println(data);
+  Serial.println();
   delay(2000);
 } 
 
@@ -68,15 +68,13 @@ void saveToSd(String data) {
 
 String readGPS() {
   char index = 0;
-  char temp = 0;
+  byte temp = 0;
   String dataString = "";
   while(softSerial.available())
   {
      temp = softSerial.read();
-     dataString += String(temp);
-     index++;
-     if(index>200)
-       break;
+     Serial.write(temp);
+     //dataString += String(temp);
   }
   return dataString;
 }
