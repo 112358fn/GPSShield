@@ -1,52 +1,81 @@
+*
+ * Arduino GPS shield v1.1
+ * Shield: http://imall.iteadstudio.com/im120417017.html
+ * Arduino: UNO
+ * 
+ * Receives GPS data from SoftSerial
+ * Sends data throw USB from Serial 
+ * 
+ * The circuit:
+ * RX is digital pin 2 (connect to TX of other device)
+ * TX is digital pin 3 (connect to RX of other device)
+ * On the shield:
+ * Select pins 2 and 3 as Tx and Rx over the UART multiplexer
+ * 
+ * modified 11 Dec 2015
+ * by Alvaro Alonso
+ * 
+ */
+#include <SPI.h>
 #include <SD.h>
-const int chipSelect = 10;
+#include <SoftwareSerial.h>
+
+/*
+ * Constants
+ */
+const byte RX_PIN = 2;
+const byte TX_PIN = 3;
+const byte CHIP_SELECT = 10;
+const char LOG_FILE[] = "datalog.txt";
+
+// Soft Serial Constructor
+SoftwareSerial softSerial (RX_PIN, TX_PIN);
+
 void setup()
 {
+  // Open Hardware Serial
   Serial.begin(9600);
-  
-  pinMode(10, OUTPUT);
-  if (!SD.begin(chipSelect)) {
-   
+  while (!Serial) {}
+  Serial.println("Conected to Arduino UNO.\nStarting system ...");
+  // Open Soft Serial
+  softSerial.begin(38400);
+  // Open SD 
+  /*
+  pinMode(CHIP_SELECT, OUTPUT);
+  if (!SD.begin(CHIP_SELECT)) {
     return;
   }
- 
+ */
+ return;
 }
 
 void loop()
 {
-  // make a string for assembling the data to log:
-  char index = 0;
-  char temp = 0;
-  String dataString = "";
-  // open the file. note that only one file can be open at a time,
-  // so you have to close this one before opening another.
-  /*
-    while(Serial.available())
-    {
-      File dataFile = SD.open("datalog.txt", FILE_WRITE);
-      if(dataFile)
-      {
-        temp = Serial.read();
-        dataString += String(temp);
-        dataFile.print(dataString);
-        dataString = "";
-        dataFile.close();
-      }
-    }
-  */  
-File dataFile = SD.open("datalog.txt", FILE_WRITE);
+  String data = readGPS( );
+  //saveToSd(data);
+  Serial.println();
+  delay(2000);
+} 
+
+void saveToSd(String data) {
+ File dataFile = SD.open(LOG_FILE, FILE_WRITE);
  if(dataFile)
  {
-   while(Serial.available())
-   {
-     temp = Serial.read();
-     dataString += String(temp);
-     index++;
-     if(index>200)
-       break;
-   }
-   dataFile.print(dataString);
+   dataFile.print(data);
    dataFile.close();
  }
-} 
+}
+
+String readGPS() {
+  char index = 0;
+  byte temp = 0;
+  String dataString = "";
+  while(softSerial.available())
+  {
+     temp = softSerial.read();
+     Serial.write(temp);
+     //dataString += String(temp);
+  }
+  return dataString;
+}
 
